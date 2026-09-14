@@ -146,8 +146,8 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#06110f] text-[#f5f7f4] font-sans flex flex-col justify-between">
-      <div>
+    <div className="min-h-screen bg-[#06110f] text-[#f5f7f4] font-sans flex flex-col justify-between overflow-x-hidden w-full">
+      <div className="w-full">
         {/* Top Utility Bar */}
         <TopBar />
 
@@ -170,26 +170,26 @@ const Home = () => {
         />
 
         {/* Main Product Catalog Section */}
-        <section id="shop" className="py-12 max-w-[1400px] mx-auto px-4 md:px-8">
+        <section id="shop" className="py-8 sm:py-12 md:py-16 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full">
           {/* Product Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-[#19352d]/60 pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-3 sm:gap-4 border-b border-[#19352d]/60 pb-5 sm:pb-6">
             <div>
               <div className="flex items-center gap-2 mb-1.5">
-                <Sparkles className="w-4 h-4 text-[#35d6b0]" />
-                <span className="text-xs font-semibold tracking-wider text-[#35d6b0] uppercase">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#35d6b0] shrink-0" />
+                <span className="text-[11px] sm:text-xs font-semibold tracking-wider text-[#35d6b0] uppercase">
                   CURATED COLLECTION
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-extrabold text-[#f5f7f4] tracking-tight">
+              <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-[#f5f7f4] tracking-tight">
                 {getSectionTitle()}
               </h2>
-              <p className="text-xs sm:text-sm text-[#a2b3ac] mt-1.5 max-w-xl">
+              <p className="text-xs sm:text-sm text-[#a2b3ac] mt-1 sm:mt-1.5 max-w-xl">
                 {getSectionSubtitle()}
               </p>
             </div>
 
             {!loading && !error && (
-              <div className="text-xs font-semibold text-[#35d6b0] bg-[#102720] border border-[#19352d] px-3.5 py-1.5 rounded-full flex items-center gap-1.5 self-start sm:self-auto shadow-sm">
+              <div className="text-xs font-semibold text-[#35d6b0] bg-[#102720] border border-[#19352d] px-3 sm:px-3.5 py-1.5 rounded-full flex items-center gap-1.5 self-start sm:self-auto shadow-sm shrink-0">
                 <span>{getProductCountLabel()}</span>
               </div>
             )}
@@ -236,3 +236,4 @@ const Home = () => {
 };
 
 export default Home;
+

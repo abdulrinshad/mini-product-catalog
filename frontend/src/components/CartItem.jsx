@@ -37,13 +37,14 @@ const CartItem = ({ item }) => {
   const subtotalDisplay = formatPriceVal(item.subtotal !== undefined ? item.subtotal : item.price * item.quantity);
 
   return (
-    <div className="flex items-center gap-3.5 p-3.5 rounded-xl border border-[#19352d] bg-[#081713] hover:border-[#35d6b0]/30 transition-all relative">
+    <div className="flex items-center gap-3 sm:gap-3.5 p-3 sm:p-3.5 rounded-xl border border-[#19352d] bg-[#081713] hover:border-[#35d6b0]/30 transition-all relative w-full">
       {/* Product Image Container */}
-      <div className="w-16 h-16 rounded-lg bg-[#0c1e19] border border-[#19352d] p-1.5 flex items-center justify-center shrink-0">
+      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg bg-[#0c1e19] border border-[#19352d] p-1.5 flex items-center justify-center shrink-0">
         <img
           src={item.image}
           alt={item.name}
           className="max-h-full max-w-full object-contain"
+          loading="lazy"
         />
       </div>
 
@@ -67,13 +68,13 @@ const CartItem = ({ item }) => {
               type="button"
               onClick={handleDecrease}
               disabled={isItemLoading || isMinQuantity}
-              aria-label="Decrease quantity"
-              className="p-1 text-[#71847c] hover:text-[#f5f7f4] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label={`Decrease quantity of ${item.name}`}
+              className="w-8 h-8 flex items-center justify-center text-[#71847c] hover:text-[#f5f7f4] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <Minus className="w-3 h-3" />
+              <Minus className="w-3.5 h-3.5" />
             </button>
 
-            <span className="px-2 text-xs font-extrabold text-[#f5f7f4] min-w-[20px] text-center">
+            <span className="px-2 text-xs font-extrabold text-[#f5f7f4] min-w-[24px] text-center">
               {item.quantity}
             </span>
 
@@ -81,10 +82,10 @@ const CartItem = ({ item }) => {
               type="button"
               onClick={handleIncrease}
               disabled={isItemLoading || isMaxStock}
-              aria-label="Increase quantity"
-              className="p-1 text-[#71847c] hover:text-[#f5f7f4] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label={`Increase quantity of ${item.name}`}
+              className="w-8 h-8 flex items-center justify-center text-[#71847c] hover:text-[#f5f7f4] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
-              <Plus className="w-3 h-3" />
+              <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
 
@@ -93,7 +94,7 @@ const CartItem = ({ item }) => {
             onClick={handleRemove}
             disabled={isItemLoading}
             aria-label={`Remove ${item.name} from cart`}
-            className="p-1.5 text-[#71847c] hover:text-[#ff7272] hover:bg-[#ff7272]/10 transition-colors rounded-lg disabled:opacity-30"
+            className="w-8 h-8 flex items-center justify-center text-[#71847c] hover:text-[#ff7272] hover:bg-[#ff7272]/10 transition-colors rounded-lg disabled:opacity-30"
           >
             {isItemLoading ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-[#35d6b0]" />
@@ -106,8 +107,8 @@ const CartItem = ({ item }) => {
 
       {/* Item Subtotal from Backend */}
       <div className="text-right shrink-0">
-        <span className="text-[10px] text-[#71847c] block uppercase tracking-wider font-medium">Subtotal</span>
-        <span className="text-sm font-extrabold text-[#35d6b0]">
+        <span className="text-[9px] sm:text-[10px] text-[#71847c] block uppercase tracking-wider font-medium">Subtotal</span>
+        <span className="text-xs sm:text-sm font-extrabold text-[#35d6b0]">
           ₹{subtotalDisplay}
         </span>
       </div>
@@ -116,3 +117,4 @@ const CartItem = ({ item }) => {
 };
 
 export default CartItem;
+

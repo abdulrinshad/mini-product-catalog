@@ -22,7 +22,7 @@ const Toast = () => {
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto sm:right-6 sm:bottom-6 z-50 animate-slide-up w-full max-w-sm px-4 sm:px-0"
+      className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:right-6 sm:bottom-6 z-50 animate-slide-up w-auto max-w-sm mx-auto sm:mx-0 pointer-events-auto"
     >
       <div
         className={`flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur-md shadow-2xl ${
@@ -41,12 +41,12 @@ const Toast = () => {
           <CheckCircle className="w-5 h-5 shrink-0 text-[#35d6b0]" />
         )}
 
-        <p className="text-xs sm:text-sm font-medium text-[#f5f7f4] flex-1">{toast.message}</p>
+        <p className="text-xs sm:text-sm font-medium text-[#f5f7f4] flex-1 leading-snug">{toast.message}</p>
 
         <button
           type="button"
           onClick={hideToast}
-          className="text-[#71847c] hover:text-[#f5f7f4] transition-colors p-1 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#35d6b0]"
+          className="w-8 h-8 flex items-center justify-center text-[#71847c] hover:text-[#f5f7f4] transition-colors rounded-lg focus:outline-none focus:ring-1 focus:ring-[#35d6b0] shrink-0 touch-target-44"
           aria-label="Close notification"
         >
           <X className="w-4 h-4" />
@@ -57,3 +57,4 @@ const Toast = () => {
 };
 
 export default Toast;
+

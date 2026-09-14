@@ -38,28 +38,29 @@ const categories = [
 
 const CategorySection = ({ selectedCategory, onSelectCategory }) => {
   return (
-    <section id="categories" className="py-12 border-b border-[#19352d]/60">
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+    <section id="categories" className="py-8 sm:py-12 md:py-16 border-b border-[#19352d]/60 w-full">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
           <div>
-            <span className="text-xs font-semibold tracking-wider text-[#35d6b0] uppercase">
+            <span className="text-[11px] sm:text-xs font-semibold tracking-wider text-[#35d6b0] uppercase">
               CATEGORIES
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#f5f7f4]">
+            <h2 className="text-xl sm:text-3xl font-extrabold text-[#f5f7f4] tracking-tight mt-0.5">
               Shop by Category
             </h2>
           </div>
           {selectedCategory && (
             <button
+              type="button"
               onClick={() => onSelectCategory('')}
-              className="text-xs text-[#dfff72] hover:underline font-semibold self-start"
+              className="text-xs text-[#dfff72] hover:underline font-semibold self-start py-1 px-2.5 rounded-lg border border-[#dfff72]/30 bg-[#102720] min-h-[36px] flex items-center"
             >
               Clear Category Filter ({selectedCategory})
             </button>
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {categories.map((cat) => {
             const Icon = cat.icon;
             const isSelected = selectedCategory === cat.id;
@@ -78,7 +79,7 @@ const CategorySection = ({ selectedCategory, onSelectCategory }) => {
                     onSelectCategory(cat.id);
                   }
                 }}
-                className={`group cursor-pointer surface-card p-5 relative overflow-hidden flex flex-col justify-between h-48 transition-all ${
+                className={`group cursor-pointer surface-card p-4 sm:p-5 relative overflow-hidden flex flex-col justify-between h-44 sm:h-48 transition-all ${
                   isSelected
                     ? 'border-[#35d6b0] ring-2 ring-[#35d6b0]/50 shadow-[0_0_20px_rgba(53,214,176,0.2)] bg-[#102720]/90'
                     : 'hover:border-[#35d6b0]/50'
@@ -90,6 +91,7 @@ const CategorySection = ({ selectedCategory, onSelectCategory }) => {
                     src={cat.image}
                     alt={cat.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0c1e19] via-[#0c1e19]/80 to-transparent" />
                 </div>
@@ -97,17 +99,17 @@ const CategorySection = ({ selectedCategory, onSelectCategory }) => {
                 {/* Top Header */}
                 <div className="relative z-10 flex items-center justify-between">
                   <div
-                    className={`p-2.5 rounded-xl border transition-colors ${
+                    className={`p-2 sm:p-2.5 rounded-xl border transition-colors ${
                       isSelected
                         ? 'bg-[#35d6b0]/25 border-[#35d6b0] text-[#35d6b0]'
                         : 'bg-[#102720]/90 border-[#19352d] text-[#35d6b0] group-hover:border-[#35d6b0]/40'
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                   <div className="flex items-center gap-1.5">
                     {isSelected && (
-                      <span className="text-[10px] font-bold text-[#06110f] bg-[#35d6b0] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm animate-fadeIn">
+                      <span className="text-[10px] font-bold text-[#06110f] bg-[#35d6b0] px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm animate-fadeIn">
                         Active
                       </span>
                     )}
@@ -121,21 +123,21 @@ const CategorySection = ({ selectedCategory, onSelectCategory }) => {
                 <div className="relative z-10 space-y-1">
                   <div className="flex items-center justify-between">
                     <h3
-                      className={`text-lg font-bold transition-colors ${
+                      className={`text-base sm:text-lg font-bold transition-colors ${
                         isSelected ? 'text-[#35d6b0]' : 'text-[#f5f7f4] group-hover:text-[#35d6b0]'
                       }`}
                     >
                       {cat.name}
                     </h3>
                     <ArrowUpRight
-                      className={`w-4 h-4 transition-all ${
+                      className={`w-4 h-4 transition-all shrink-0 ${
                         isSelected
                           ? 'text-[#35d6b0] translate-x-0.5 -translate-y-0.5'
                           : 'text-[#71847c] group-hover:text-[#35d6b0] group-hover:translate-x-0.5 group-hover:-translate-y-0.5'
                       }`}
                     />
                   </div>
-                  <p className="text-xs text-[#a2b3ac]">{cat.tagline}</p>
+                  <p className="text-xs text-[#a2b3ac] line-clamp-1">{cat.tagline}</p>
                 </div>
               </div>
             );
@@ -147,3 +149,4 @@ const CategorySection = ({ selectedCategory, onSelectCategory }) => {
 };
 
 export default CategorySection;
+

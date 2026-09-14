@@ -22,6 +22,8 @@
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
   }
 
   body {
@@ -30,6 +32,8 @@
     background-color: var(--bg-main);
     color: var(--text-primary);
     overflow-x: hidden;
+    width: 100%;
+    position: relative;
     -webkit-font-smoothing: antialiased;
     background-image: 
       radial-gradient(ellipse 80% 50% at 50% -20%, rgba(53, 214, 176, 0.06), transparent),
@@ -62,6 +66,16 @@
   background: #19352d;
 }
 
+/* Utility to hide scrollbars for clean horizontal pill scrolling on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Accent Text Utilities */
 .text-accent-teal {
   color: #35d6b0;
@@ -79,8 +93,9 @@
 
 /* Glass Panels & Surfaces */
 .glass-panel {
-  background: rgba(12, 30, 25, 0.8);
+  background: rgba(12, 30, 25, 0.85);
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid #19352d;
   border-radius: 1rem;
 }
@@ -89,13 +104,23 @@
   background: #0c1e19;
   border: 1px solid #19352d;
   border-radius: 1rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.surface-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(53, 214, 176, 0.4);
-  box-shadow: 0 12px 28px -10px rgba(53, 214, 176, 0.15);
+@media (hover: hover) {
+  .surface-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(53, 214, 176, 0.4);
+    box-shadow: 0 12px 28px -10px rgba(53, 214, 176, 0.15);
+  }
+}
+
+/* Touch Friendly Utilities */
+.touch-target-44 {
+  min-height: 44px;
+  min-width: 44px;
 }
 
 /* Custom Input Styling */
@@ -141,22 +166,27 @@
   font-weight: 700;
   border-radius: 0.75rem;
   padding: 0.625rem 1.25rem;
+  min-height: 44px;
   transition: all 0.2s ease;
   box-shadow: 0 4px 14px 0 rgba(53, 214, 176, 0.25);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  touch-action: manipulation;
 }
 
-.btn-teal:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px 0 rgba(53, 214, 176, 0.4);
-  background: linear-gradient(135deg, #5de5c0 0%, #35d6b0 100%);
+@media (hover: hover) {
+  .btn-teal:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px 0 rgba(53, 214, 176, 0.4);
+    background: linear-gradient(135deg, #5de5c0 0%, #35d6b0 100%);
+  }
 }
 
 .btn-teal:active:not(:disabled) {
   transform: translateY(0);
+  opacity: 0.95;
 }
 
 .btn-secondary-dark {
@@ -166,17 +196,21 @@
   font-weight: 600;
   border-radius: 0.75rem;
   padding: 0.625rem 1.25rem;
+  min-height: 44px;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  touch-action: manipulation;
 }
 
-.btn-secondary-dark:hover:not(:disabled) {
-  background: #143129;
-  border-color: rgba(53, 214, 176, 0.3);
-  color: #ffffff;
+@media (hover: hover) {
+  .btn-secondary-dark:hover:not(:disabled) {
+    background: #143129;
+    border-color: rgba(53, 214, 176, 0.3);
+    color: #ffffff;
+  }
 }
 
 .btn-ghost-dark {
@@ -185,16 +219,20 @@
   font-weight: 600;
   border-radius: 0.75rem;
   padding: 0.625rem 1.25rem;
+  min-height: 44px;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  touch-action: manipulation;
 }
 
-.btn-ghost-dark:hover:not(:disabled) {
-  background: rgba(25, 53, 45, 0.5);
-  color: #f5f7f4;
+@media (hover: hover) {
+  .btn-ghost-dark:hover:not(:disabled) {
+    background: rgba(25, 53, 45, 0.5);
+    color: #f5f7f4;
+  }
 }
 
 .btn-disabled-dark {
@@ -318,4 +356,5 @@
     animation: none !important;
   }
 }
+
 
