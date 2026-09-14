@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 // Get cart with populated product details and calculated totals
 const getCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne();
+    const cart = await Cart.findOne({ sessionId: req.cartSessionId });
 
     if (!cart || !cart.items || cart.items.length === 0) {
       return res.status(200).json({
@@ -91,10 +91,10 @@ const addToCart = async (req, res) => {
       return res.status(400).json({ message: 'Product is out of stock' });
     }
 
-    // Find or create single cart document
-    let cart = await Cart.findOne();
+    // Find or create session-specific cart document
+    let cart = await Cart.findOne({ sessionId: req.cartSessionId });
     if (!cart) {
-      cart = new Cart({ items: [] });
+      cart = new Cart({ sessionId: req.cartSessionId, items: [] });
     }
 
     // Check if item already exists in cart
@@ -152,8 +152,8 @@ const updateCartItem = async (req, res) => {
       });
     }
 
-    // Find existing cart
-    const cart = await Cart.findOne();
+    // Find existing session cart
+    const cart = await Cart.findOne({ sessionId: req.cartSessionId });
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
@@ -200,8 +200,8 @@ const removeFromCart = async (req, res) => {
       return res.status(400).json({ message: 'Invalid product ID parameter' });
     }
 
-    // Find existing cart
-    const cart = await Cart.findOne();
+    // Find existing session cart
+    const cart = await Cart.findOne({ sessionId: req.cartSessionId });
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }

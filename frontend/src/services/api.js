@@ -58,15 +58,42 @@ export const getProducts = async (params = {}) => {
 
 export const fetchProducts = getProducts;
 
+/**
+ * Helper function to retrieve or generate a persistent guest cart session ID
+ */
+export const getCartSessionId = () => {
+  const key = 'cartSessionId';
+
+  let sessionId = localStorage.getItem(key);
+
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem(key, sessionId);
+  }
+
+  return sessionId;
+};
+
+/**
+ * Helper function to generate cart headers containing X-Cart-Session
+ */
+const getCartHeaders = () => ({
+  'Content-Type': 'application/json',
+  'X-Cart-Session': getCartSessionId(),
+});
+
 // Cart API functions
 export const getCart = async () => {
-  return request('/cart');
+  return request('/cart', {
+    headers: getCartHeaders(),
+  });
 };
 export const fetchCart = getCart;
 
 export const addToCart = async (productId, quantity = 1) => {
   return request('/cart', {
     method: 'POST',
+    headers: getCartHeaders(),
     body: JSON.stringify({ productId, quantity }),
   });
 };
@@ -75,6 +102,7 @@ export const addItemToCart = addToCart;
 export const updateCartItem = async (productId, quantity) => {
   return request(`/cart/${productId}`, {
     method: 'PATCH',
+    headers: getCartHeaders(),
     body: JSON.stringify({ quantity }),
   });
 };
@@ -83,11 +111,13 @@ export const updateCartItemQuantity = updateCartItem;
 export const removeFromCart = async (productId) => {
   return request(`/cart/${productId}`, {
     method: 'DELETE',
+    headers: getCartHeaders(),
   });
 };
 export const removeItemFromCart = removeFromCart;
 
 export default {
+  getCartSessionId,
   getProducts,
   fetchProducts,
   getCart,

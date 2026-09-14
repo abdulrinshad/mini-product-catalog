@@ -17,6 +17,12 @@ const cartItemSchema = new mongoose.Schema(
 
 const cartSchema = new mongoose.Schema(
   {
+    sessionId: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
     items: [cartItemSchema],
   },
   {
