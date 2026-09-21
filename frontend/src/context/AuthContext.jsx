@@ -55,17 +55,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Register handler
-  const register = async (name, email, password) => {
-    setAuthError(null);
-    try {
-      const data = await apiRegister(name, email, password);
-      // Auto login after successful registration
-      return await login(email, password);
-    } catch (err) {
-      setAuthError(err.message || 'Registration failed');
-      throw err;
-    }
-  };
+ // Register handler
+const register = async (name, email, password) => {
+  setAuthError(null);
+
+  try {
+    const data = await apiRegister(name, email, password);
+
+    // Registration only — do not automatically log in
+    return data;
+  } catch (err) {
+    setAuthError(err.message || 'Registration failed');
+    throw err;
+  }
+};
 
   // Logout handler
   const logout = useCallback(() => {

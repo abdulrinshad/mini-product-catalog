@@ -48,10 +48,19 @@ const Register = () => {
     try {
       setLoading(true);
       await register(name.trim(), email.trim(), password);
-      setSuccessMessage('Account created successfully! Logging you in...');
-      setTimeout(() => {
-        navigate('/', { replace: true });
-      }, 600);
+      setSuccessMessage(
+  'Account created successfully! Please login with your registered email and password.'
+);
+
+setTimeout(() => {
+  navigate('/login', {
+    replace: true,
+    state: {
+      message:
+        'Registration successful! Please login with your registered email and password.'
+    }
+  });
+}, 1000);
     } catch (err) {
       setErrorMessage(err.message || 'Registration failed. Please try again.');
     } finally {
