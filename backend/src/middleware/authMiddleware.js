@@ -13,6 +13,13 @@ const protect = async (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
 
+    if (!process.env.JWT_SECRET) {
+      console.error("CRITICAL CONFIGURATION ERROR: process.env.JWT_SECRET is missing.");
+      return res.status(500).json({
+        message: "Server configuration error: JWT secret is missing",
+      });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findById(decoded.userId).select("-password");

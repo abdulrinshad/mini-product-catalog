@@ -51,14 +51,12 @@ const getCart = async (req, res) => {
       items,
       totalPrice,
     });
- } catch (error) {
-  console.error("Add to cart error:", error);
-
-  return res.status(500).json({
-    message: "Server error while adding item to cart",
-    error: error.message,
-  });
-}
+  } catch (error) {
+    console.error('Get cart error:', error.message || error);
+    return res.status(500).json({
+      message: 'Server error while fetching cart',
+    });
+  }
 };
 
 // Add a product to the cart
@@ -126,6 +124,33 @@ const addToCart = async (req, res) => {
 
     return res.status(200).json(cart);
   } catch (error) {
+    console.error('Add to cart error:', error.message || error);
+
+    // Auto-recovery for obsolete sessionId_1 index if present in MongoDB
+    if (error.code === 11000 && error.message && error.message.includes('sessionId')) {
+      console.warn('Detected E11000 duplicate key error on obsolete sessionId_1 index. Attempting to drop index.');
+      try {
+        await Cart.collection.dropIndex('sessionId_1');
+        console.log('Successfully dropped obsolete sessionId_1 index. Retrying cart save...');
+        // Retry save after index cleanup
+        let retryCart = await Cart.findOne({ userId: req.user._id });
+        if (!retryCart) {
+          retryCart = new Cart({ userId: req.user._id, items: [{ productId: req.body.productId, quantity: req.body.quantity }] });
+        } else {
+          const idx = retryCart.items.findIndex((item) => item.productId === req.body.productId);
+          if (idx > -1) {
+            retryCart.items[idx].quantity += req.body.quantity;
+          } else {
+            retryCart.items.push({ productId: req.body.productId, quantity: req.body.quantity });
+          }
+        }
+        await retryCart.save();
+        return res.status(200).json(retryCart);
+      } catch (retryErr) {
+        console.error('Retry after index drop failed:', retryErr.message);
+      }
+    }
+
     return res.status(500).json({
       message: 'Server error while adding item to cart',
     });
@@ -187,6 +212,7 @@ const updateCartItem = async (req, res) => {
 
     return res.status(200).json(cart);
   } catch (error) {
+    console.error('Update cart item error:', error.message || error);
     return res.status(500).json({
       message: 'Server error while updating cart item',
     });
@@ -222,6 +248,7 @@ const removeFromCart = async (req, res) => {
 
     return res.status(200).json(cart);
   } catch (error) {
+    console.error('Remove from cart error:', error.message || error);
     return res.status(500).json({
       message: 'Server error while removing item from cart',
     });

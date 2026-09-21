@@ -107,7 +107,15 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // 5. Create JWT token
+    // 5. Verify JWT_SECRET environment variable
+    if (!process.env.JWT_SECRET) {
+      console.error("CRITICAL CONFIGURATION ERROR: process.env.JWT_SECRET is missing.");
+      return res.status(500).json({
+        message: "Server configuration error: JWT secret is missing",
+      });
+    }
+
+    // 6. Create JWT token
     const token = require("jsonwebtoken").sign(
       {
         userId: user._id,
