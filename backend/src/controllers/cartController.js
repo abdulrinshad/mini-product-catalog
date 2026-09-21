@@ -51,11 +51,14 @@ const getCart = async (req, res) => {
       items,
       totalPrice,
     });
-  } catch (error) {
-    return res.status(500).json({
-      message: 'Server error while fetching cart',
-    });
-  }
+ } catch (error) {
+  console.error("Add to cart error:", error);
+
+  return res.status(500).json({
+    message: "Server error while adding item to cart",
+    error: error.message,
+  });
+}
 };
 
 // Add a product to the cart
