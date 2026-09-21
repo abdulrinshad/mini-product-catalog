@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
   getCart as apiGetCart,
   addToCart as apiAddToCart,
@@ -9,8 +11,11 @@ import {
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
   const [cart, setCart] = useState({ items: [], totalPrice: 0 });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [cartError, setCartError] = useState(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -26,8 +31,34 @@ export const CartProvider = ({ children }) => {
     setToast(null);
   }, []);
 
+  // Handle 401 Unauthorized or Expired Session
+  const handleAuthError = useCallback((err) => {
+    const is401 = err.message && (
+      err.message.includes('401') ||
+      err.message.toLowerCase().includes('token') ||
+      err.message.toLowerCase().includes('unauthorized') ||
+      err.message.toLowerCase().includes('not logged in')
+    );
+
+    if (is401) {
+      logout();
+      setCart({ items: [], totalPrice: 0 });
+      setIsCartOpen(false);
+      showToast('Session expired. Please sign in again.', 'error');
+      navigate('/login');
+      return true;
+    }
+    return false;
+  }, [logout, navigate, showToast]);
+
   // Fetch / Synchronize cart from API GET /cart
   const fetchCart = useCallback(async () => {
+    if (!isAuthenticated) {
+      setCart({ items: [], totalPrice: 0 });
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setCartError(null);
@@ -35,16 +66,24 @@ export const CartProvider = ({ children }) => {
       setCart(data && Array.isArray(data.items) ? data : { items: [], totalPrice: 0 });
     } catch (err) {
       console.error('Failed to fetch cart:', err.message);
-      setCartError('Unable to load your cart');
+      if (!handleAuthError(err)) {
+        setCartError('Unable to load your cart');
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated, handleAuthError]);
 
-  // Initial cart fetch on application mount
+  // React to changes in authentication state
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
+    if (isAuthenticated) {
+      fetchCart();
+    } else {
+      setCart({ items: [], totalPrice: 0 });
+      setIsCartOpen(false);
+      setLoading(false);
+    }
+  }, [isAuthenticated, fetchCart]);
 
   // Handle drawer body scroll locking & Escape key listener
   useEffect(() => {
@@ -66,26 +105,50 @@ export const CartProvider = ({ children }) => {
   }, [isCartOpen]);
 
   // Drawer Controls
-  const openCart = useCallback(() => setIsCartOpen(true), []);
+  const openCart = useCallback(() => {
+    if (!isAuthenticated) {
+      showToast('Please sign in to access your cart', 'info');
+      navigate('/login');
+      return;
+    }
+    setIsCartOpen(true);
+  }, [isAuthenticated, navigate, showToast]);
+
   const closeCart = useCallback(() => setIsCartOpen(false), []);
-  const toggleCart = useCallback(() => setIsCartOpen((prev) => !prev), []);
+  const toggleCart = useCallback(() => {
+    if (!isAuthenticated) {
+      showToast('Please sign in to access your cart', 'info');
+      navigate('/login');
+      return;
+    }
+    setIsCartOpen((prev) => !prev);
+  }, [isAuthenticated, navigate, showToast]);
 
   // Add Item (POST /cart)
   const addItem = async (productId, quantity = 1) => {
+    if (!isAuthenticated) {
+      showToast('Please sign in to add items to your cart', 'info');
+      navigate('/login');
+      return;
+    }
+
     if (loadingItems[productId]) return;
+
     try {
       setLoadingItems((prev) => ({ ...prev, [productId]: true }));
       await apiAddToCart(productId, quantity);
       const updatedCart = await apiGetCart();
       setCart(updatedCart && Array.isArray(updatedCart.items) ? updatedCart : { items: [], totalPrice: 0 });
       showToast('Added to cart', 'success');
-      openCart();
+      setIsCartOpen(true);
     } catch (err) {
       console.error('Add to cart error:', err.message);
-      const userMessage = err.message && err.message.toLowerCase().includes('exceed')
-        ? 'Maximum available stock reached.'
-        : err.message || 'Unable to update cart';
-      showToast(userMessage, 'error');
+      if (!handleAuthError(err)) {
+        const userMessage = err.message && err.message.toLowerCase().includes('exceed')
+          ? 'Maximum available stock reached.'
+          : err.message || 'Unable to update cart';
+        showToast(userMessage, 'error');
+      }
     } finally {
       setLoadingItems((prev) => ({ ...prev, [productId]: false }));
     }
@@ -93,6 +156,12 @@ export const CartProvider = ({ children }) => {
 
   // Update Item Quantity (PATCH /cart/:id)
   const updateItem = async (productId, quantity) => {
+    if (!isAuthenticated) {
+      showToast('Please sign in to modify your cart', 'info');
+      navigate('/login');
+      return;
+    }
+
     if (loadingItems[productId]) return;
     if (quantity < 1) return; // Do not send 0 or negative quantities
 
@@ -104,10 +173,12 @@ export const CartProvider = ({ children }) => {
       showToast('Cart updated', 'success');
     } catch (err) {
       console.error('Update cart item error:', err.message);
-      const userMessage = err.message && err.message.toLowerCase().includes('exceed')
-        ? 'Maximum available stock reached.'
-        : err.message || 'Unable to update cart';
-      showToast(userMessage, 'error');
+      if (!handleAuthError(err)) {
+        const userMessage = err.message && err.message.toLowerCase().includes('exceed')
+          ? 'Maximum available stock reached.'
+          : err.message || 'Unable to update cart';
+        showToast(userMessage, 'error');
+      }
     } finally {
       setLoadingItems((prev) => ({ ...prev, [productId]: false }));
     }
@@ -115,7 +186,14 @@ export const CartProvider = ({ children }) => {
 
   // Remove Item (DELETE /cart/:id)
   const removeItem = async (productId) => {
+    if (!isAuthenticated) {
+      showToast('Please sign in to modify your cart', 'info');
+      navigate('/login');
+      return;
+    }
+
     if (loadingItems[productId]) return;
+
     try {
       setLoadingItems((prev) => ({ ...prev, [productId]: true }));
       await apiRemoveFromCart(productId);
@@ -124,7 +202,9 @@ export const CartProvider = ({ children }) => {
       showToast('Removed from cart', 'info');
     } catch (err) {
       console.error('Remove item error:', err.message);
-      showToast(err.message || 'Unable to update cart', 'error');
+      if (!handleAuthError(err)) {
+        showToast(err.message || 'Unable to update cart', 'error');
+      }
     } finally {
       setLoadingItems((prev) => ({ ...prev, [productId]: false }));
     }

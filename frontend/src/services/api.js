@@ -1,17 +1,19 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 /**
- * Helper function for HTTP requests with error handling
+ * Helper function for HTTP requests with automatic Authorization header injection
  */
 const request = async (endpoint, options = {}) => {
   const url = `${API_URL}${endpoint}`;
+  const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
   const response = await fetch(url, { ...options, headers });
-  
+
   if (!response.ok) {
     let errorMsg = `Server error (${response.status})`;
     try {
@@ -29,7 +31,7 @@ const request = async (endpoint, options = {}) => {
 };
 
 /**
- * Fetch products from GET /products with optional params: { search, minPrice, maxPrice, sort }
+ * Fetch products from GET /products with optional params: { category, search, minPrice, maxPrice, sort }
  */
 export const getProducts = async (params = {}) => {
   const queryParams = new URLSearchParams();
@@ -58,42 +60,34 @@ export const getProducts = async (params = {}) => {
 
 export const fetchProducts = getProducts;
 
-/**
- * Helper function to retrieve or generate a persistent guest cart session ID
- */
-export const getCartSessionId = () => {
-  const key = 'cartSessionId';
-
-  let sessionId = localStorage.getItem(key);
-
-  if (!sessionId) {
-    sessionId = crypto.randomUUID();
-    localStorage.setItem(key, sessionId);
-  }
-
-  return sessionId;
+// Authentication API Functions
+export const registerUser = async (name, email, password) => {
+  return request('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ name, email, password }),
+  });
 };
 
-/**
- * Helper function to generate cart headers containing X-Cart-Session
- */
-const getCartHeaders = () => ({
-  'Content-Type': 'application/json',
-  'X-Cart-Session': getCartSessionId(),
-});
-
-// Cart API functions
-export const getCart = async () => {
-  return request('/cart', {
-    headers: getCartHeaders(),
+export const loginUser = async (email, password) => {
+  return request('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
   });
+};
+
+export const getUserProfile = async () => {
+  return request('/api/auth/profile');
+};
+
+// Cart API Functions (now authenticated via JWT Bearer token in request helper)
+export const getCart = async () => {
+  return request('/cart');
 };
 export const fetchCart = getCart;
 
 export const addToCart = async (productId, quantity = 1) => {
   return request('/cart', {
     method: 'POST',
-    headers: getCartHeaders(),
     body: JSON.stringify({ productId, quantity }),
   });
 };
@@ -102,7 +96,6 @@ export const addItemToCart = addToCart;
 export const updateCartItem = async (productId, quantity) => {
   return request(`/cart/${productId}`, {
     method: 'PATCH',
-    headers: getCartHeaders(),
     body: JSON.stringify({ quantity }),
   });
 };
@@ -111,15 +104,16 @@ export const updateCartItemQuantity = updateCartItem;
 export const removeFromCart = async (productId) => {
   return request(`/cart/${productId}`, {
     method: 'DELETE',
-    headers: getCartHeaders(),
   });
 };
 export const removeItemFromCart = removeFromCart;
 
 export default {
-  getCartSessionId,
   getProducts,
   fetchProducts,
+  registerUser,
+  loginUser,
+  getUserProfile,
   getCart,
   fetchCart,
   addToCart,
@@ -129,3 +123,4 @@ export default {
   removeFromCart,
   removeItemFromCart,
 };
+

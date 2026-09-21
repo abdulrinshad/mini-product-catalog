@@ -1,10 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../context/AuthContext';
 import CartItem from './CartItem';
-import { X, ShoppingBag, ArrowRight, RefreshCw, AlertTriangle, Loader2 } from 'lucide-react';
+import { X, ShoppingBag, ArrowRight, RefreshCw, AlertTriangle, Loader2, LogIn } from 'lucide-react';
 
 const CartDrawer = ({ onContinueShopping }) => {
   const { cart, loading, cartError, isCartOpen, closeCart, totalItemCount, fetchCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   if (!isCartOpen) return null;
 
@@ -17,6 +21,11 @@ const CartDrawer = ({ onContinueShopping }) => {
     if (onContinueShopping) {
       onContinueShopping();
     }
+  };
+
+  const handleSignInClick = () => {
+    closeCart();
+    navigate('/login');
   };
 
   const formatTotal = (val) => {
@@ -58,7 +67,7 @@ const CartDrawer = ({ onContinueShopping }) => {
               <div>
                 <h3 className="text-base sm:text-lg font-extrabold text-[#f5f7f4] tracking-tight">Your Cart</h3>
                 <p className="text-xs text-[#71847c]">
-                  {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'} selected
+                  {isAuthenticated ? `${totalItemCount} ${totalItemCount === 1 ? 'item' : 'items'} selected` : 'Authentication required'}
                 </p>
               </div>
             </div>
@@ -73,16 +82,37 @@ const CartDrawer = ({ onContinueShopping }) => {
             </button>
           </div>
 
-          {/* Drawer Body: Loading State / Error State / Empty State / Cart Items */}
+          {/* Drawer Body */}
           <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-3 sm:space-y-4">
-            {/* 1. Loading State */}
-            {loading ? (
+            {!isAuthenticated ? (
+              /* Unauthenticated State */
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4 my-auto">
+                <div className="w-16 h-16 rounded-2xl bg-[#102720] border border-[#19352d] flex items-center justify-center text-[#35d6b0] mx-auto">
+                  <LogIn className="w-8 h-8" />
+                </div>
+                <div className="space-y-1.5">
+                  <h4 className="text-base sm:text-lg font-bold text-[#f5f7f4]">Sign In Required</h4>
+                  <p className="text-xs text-[#a2b3ac] max-w-xs leading-relaxed">
+                    Please sign in to view your personal cart items and proceed to checkout.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSignInClick}
+                  className="btn-teal text-xs py-2.5 px-5 mt-3 min-h-[44px]"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Sign In Now</span>
+                </button>
+              </div>
+            ) : loading ? (
+              /* Loading State */
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
                 <Loader2 className="w-8 h-8 text-[#35d6b0] animate-spin mx-auto" />
                 <p className="text-xs text-[#a2b3ac]">Loading your cart...</p>
               </div>
             ) : cartError ? (
-              /* 2. Error State */
+              /* Error State */
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4 my-auto">
                 <div className="w-14 h-14 rounded-2xl bg-[#ff7272]/15 border border-[#ff7272]/30 flex items-center justify-center text-[#ff7272] mx-auto">
                   <AlertTriangle className="w-7 h-7" />
@@ -103,7 +133,7 @@ const CartDrawer = ({ onContinueShopping }) => {
                 </button>
               </div>
             ) : !cart.items || cart.items.length === 0 ? (
-              /* 3. Empty State */
+              /* Empty State */
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4 my-auto">
                 <div className="w-16 h-16 rounded-2xl bg-[#0c1e19] border border-[#19352d] flex items-center justify-center text-[#35d6b0]">
                   <ShoppingBag className="w-8 h-8 stroke-[1.5]" />
@@ -124,7 +154,7 @@ const CartDrawer = ({ onContinueShopping }) => {
                 </button>
               </div>
             ) : (
-              /* 4. Cart Items List */
+              /* Cart Items List */
               cart.items.map((item) => (
                 <CartItem key={item.productId} item={item} />
               ))
@@ -132,7 +162,7 @@ const CartDrawer = ({ onContinueShopping }) => {
           </div>
 
           {/* Drawer Footer: Total & Actions */}
-          {!loading && !cartError && cart.items && cart.items.length > 0 && (
+          {isAuthenticated && !loading && !cartError && cart.items && cart.items.length > 0 && (
             <div className="p-4 sm:p-6 border-t border-[#19352d] bg-[#081713] space-y-3.5 shrink-0">
               <div className="flex justify-between items-center text-base font-extrabold text-[#f5f7f4] pt-1">
                 <span className="text-xs sm:text-sm font-bold text-[#f5f7f4]">Total</span>
@@ -157,4 +187,5 @@ const CartDrawer = ({ onContinueShopping }) => {
 };
 
 export default CartDrawer;
+
 
