@@ -37,10 +37,14 @@ const Login = () => {
 
     try {
       setLoading(true);
-      await login(email.trim(), password);
+      const loggedInUser = await login(email.trim(), password);
       setSuccessMessage('Login successful! Redirecting...');
       setTimeout(() => {
-        navigate(from, { replace: true });
+        if (loggedInUser && loggedInUser.role === 'admin') {
+          navigate('/admin', { replace: true });
+        } else {
+          navigate(from, { replace: true });
+        }
       }, 600);
     } catch (err) {
       setErrorMessage(err.message || 'Failed to sign in. Please check your credentials.');

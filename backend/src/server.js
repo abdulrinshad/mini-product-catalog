@@ -6,6 +6,7 @@ const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.get('/health', (req, res) => {
 app.use('/products', productRoutes);
 app.use('/cart', cartRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 // Production-safe startup: connect to DB first before opening server port
 const startServer = async () => {
   try {

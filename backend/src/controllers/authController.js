@@ -40,11 +40,12 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 6. Create user
+    // 6. Create user (role always defaults to "user", req.body.role is ignored)
     const user = await User.create({
       name: name.trim(),
       email: normalizedEmail,
       password: hashedPassword,
+      role: "user",
     });
 
     // 7. Send response without password
@@ -54,6 +55,7 @@ const registerUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         createdAt: user.createdAt,
       },
     });
@@ -64,7 +66,6 @@ const registerUser = async (req, res) => {
       message: "Server error during registration",
     });
   }
-  
 };
 
 // @desc    Login user
@@ -115,10 +116,11 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // 6. Create JWT token
+    // 6. Create JWT token containing userId and role
     const token = require("jsonwebtoken").sign(
       {
         userId: user._id,
+        role: user.role,
       },
       process.env.JWT_SECRET,
       {
@@ -126,7 +128,7 @@ const loginUser = async (req, res) => {
       }
     );
 
-    // 6. Send response
+    // 7. Send response
     return res.status(200).json({
       message: "Login successful",
       token,
@@ -134,6 +136,7 @@ const loginUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -153,6 +156,6 @@ const getProfile = async (req, res) => {
 
 module.exports = {
   registerUser,
-    loginUser,
-    getProfile,
+  loginUser,
+  getProfile,
 };
